@@ -4,4 +4,5 @@ program
 begin
 label hat;
 warp hat;
+while [ < ] begin output hat; end;;
 end

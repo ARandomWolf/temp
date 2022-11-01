@@ -56,6 +56,7 @@ class Parser:
         return
 
         # <stat> <mStat>
+
     def check_semicolin(self):
         if self.token_list[self.lookahead].tokenID == 'SMICLN_tk':
             self.lookahead += 1
@@ -72,31 +73,32 @@ class Parser:
 
     def stat(self):
         ll_id = self.token_list[self.lookahead].tokenID
-        if ll_id == 'input_tk': # <in>
+        if ll_id == 'input_tk':  # <in>
             self.input_tk()
             self.check_semicolin()
-        elif ll_id == 'output_tk': # <out>
+        elif ll_id == 'output_tk':  # <out>
             self.output_tk()
             self.check_semicolin()
-        elif ll_id == 'begin_tk': # <block>
+        elif ll_id == 'begin_tk':  # <block>
             self.block()
-        elif ll_id == 'if_tk':
+        elif ll_id == 'if_tk':  # <if>
             self.if_tk()
             self.check_semicolin()
-        elif ll_id == 'while_tk':
-            self.while_tk()
+        elif ll_id == 'while_tk':  # <loop>
+            self.loop_nt()
             self.check_semicolin()
-        elif ll_id == 'assign_tk':
+        elif ll_id == 'assign_tk':  # <assign>
             self.assign_tk()
             self.check_semicolin()
-        elif ll_id == 'warp_tk':
+        elif ll_id == 'warp_tk':  # <goto>
             self.warp_tk()
             self.check_semicolin()
-        elif ll_id == 'label_tk':
+        elif ll_id == 'label_tk':  # <label>
             self.label_tk()
             self.check_semicolin()
         else:
             print('Error! Statement expected.')
+            print('Possibly missing \'begin\' keyword for start of statement block')
             self.print_error()
             exit(1)
         return
@@ -139,22 +141,88 @@ class Parser:
         else:
             exit(1)
 
+    def ro(self):
+        valid = {'GREAT_tk', 'LESS_tk', 'EQEQ_tk', 'NOTEQ_tk'}
+
+        if valid.__contains__(self.token_list[self.lookahead].tokenID):
+            self.lookahead += 1
+            return
+        elif self.token_list[self.lookahead].tokenID == 'LBRACK_tk':
+            self.lookahead += 1
+            if self.token_list[self.lookahead].tokenID == 'EQUAL_tk':
+                self.lookahead += 1
+                if self.token_list[self.lookahead].tokenID == 'RBRACK_tk':
+                    self.lookahead += 1
+                    return
+                else:
+                    self.print_error()
+                    print('Did you mean \'[=]\' ? ')
+                    exit(1)
+            else:
+                self.print_error()
+                print('Did you mean \'[=]\' ? ')
+                exit(1)
+        else:
+            self.print_error()
+            print('Equality operator expected.')
+            exit(1)
+
     def assign_tk(self):
-        return
-    def while_tk(self):
-        return
+        if self.token_list[self.lookahead].tokenID == 'assign_tk':
+            self.lookahead += 1
+            if self.token_list[self.lookahead].tokenID == 'IDENT_tk':
+                self.lookahead += 1
+                if self.token_list[self.lookahead].tokenID == 'EQUAL_tk':
+                    self.lookahead += 1
+                    self.expr()
+                    return
+                else:
+                    print('Error! \'=\' token expected after identifier in statement starting with \'assign\' keyword.')
+                    self.print_error()
+                    exit(1)
+            else:
+                print('Error! Identifier expected.')
+                self.print_error()
+                exit(1)
+        else:
+            exit(1)
+
+    def loop_nt(self): # while [<expr><RO><expr>] <stat>
+        if self.token_list[self.lookahead].tokenID == 'while_tk':
+            self.lookahead += 1  # while
+            if self.token_list[self.lookahead].tokenID == 'LBRACK_tk':
+                self.lookahead += 1  # [
+                self.expr()     # <expr>
+                self.ro()       # <RO>
+                self.expr()     # <expr>
+                if self.token_list[self.lookahead].tokenID == 'RBRACK_tk':
+                    self.lookahead += 1  # ]
+                    self.stat()  # <stat>
+                    return
+                else:
+                    self.print_error()
+                    print('Missing ] following \'while\' statement.')
+                    exit(1)
+            else:
+                self.print_error()
+                print('Missing [ following \'while\' statement.')
+                exit(1)
+        else:
+            exit(1)
 
     def if_tk(self):
         return
-    #TODO add following
-    #<if> -> if [ <expr> <RO> <expr> ] then <stat> |
-    #if [ <expr> <RO> <expr> ] then <stat> pick <stat>
+
+    # TODO add following
+    # <if> -> if [ <expr> <RO> <expr> ] then <stat> |
+    # if [ <expr> <RO> <expr> ] then <stat> pick <stat>
 
     # <out>
     def output_tk(self):
         if self.token_list[self.lookahead].tokenID == 'output_tk':
             self.lookahead += 1
             self.expr()
+            return
         else:
             exit(1)
 
