@@ -1,0 +1,43 @@
+Author: Wyatt Wolf
+Github: https://github.com/ARandomWolf/language-Compiler.git
+Project written in python version 2.7.5
+
+
+The scanner portion of this project takes in file or console input,
+then outputs a list of tokens one at a time, giving details on each one.
+
+----------------------------------------------------------------------------------------
+How to run program
+option 1 (input entered by user):
+        python main.py
+
+        Note: CTRL-D or CTRL-Z (EOF) must be entered on new line.
+        All text present on the same line as the EOF token will be lost and cause errors.
+
+option 2 (using file input): python main.py filename
+
+option 3 (redirect): python main.py < filename
+
+----------------------------------------------------------------------------------------
+
+Lexical definitions for making tokens
+Alphabet:
+    - All English letters (upper and lower), digits, plus the extra characters as seen below, plus WS.
+
+Identifiers:
+    - Begin with an upper or lower case letter or underscore.
+    - Continue with any number of letters (uppercase or lowercase) or digits.
+
+Keywords:
+    begin end do while whole label return input output
+    program warp if then pick declare assign func
+
+Operators and delimiters (all single character except ==  := != || && ):
+    =  <  > == != : :=  +  -  *  /   ^  . (  ) , { } ; [ ] || &&
+
+Integers:
+    - Any sequence of decimal digits, no sign, no decimal point.
+
+Comments:
+    - Start with # and end with #.  ex:  # this is a comment #
+    - Can cross multiple lines.
